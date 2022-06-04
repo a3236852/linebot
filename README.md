@@ -39,6 +39,7 @@ LINE 群組訂飲料時，大家要的飲料要一個一個複製到Excel上，�
 會重新跑原有資料,記錄到第2個頁籤 
 第一次出現的飲料會記錄1  
 若後面出現相同的品項(包含甜度冰量也一樣)的資料 會+1  
-![image](https://user-images.githubusercontent.com/25762233/171983761-70b70cf2-8fec-417a-aaf6-5192c72a19b1.png)
-
+![image](https://user-images.githubusercontent.com/25762233/171983761-70b70cf2-8fec-417a-aaf6-5192c72a19b1.png) 
+資料回傳到小幫手  
+![image](https://user-images.githubusercontent.com/25762233/171985886-58ff5a95-8a07-4d06-a897-5d4d90ed842a.png) 
 ![image](https://user-images.githubusercontent.com/25762233/171984093-f91343eb-005b-4c7d-91b0-845a3019a05e.png)
