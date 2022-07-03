@@ -1,10 +1,16 @@
+// Maded By Chun Shawn in jcshawn.com
+// Contact : contact@jcshawn.com
+// 當 LINE BOT 接收到訊息，會自動執行 doPost
+
 function doPost(e) {
   // LINE Messenging API Token
   var CHANNEL_ACCESS_TOKEN = '';	//請放自己的TOKEN
   // 以 JSON 格式解析 User 端傳來的 e 資料
-	var msg = JSON.parse(e.postData.contents);
+  //var msg = JSON.parse(e.postData.contents);
+  //var msg = {"destination":"U8436805e8973b172529856f80f53ab31","events":[{"type":"message","message":{"type":"text","id":"15990496244949","text":"查詢"},    "webhookEventId":"01G1NQKBQMQMJ9KCK7C6CQFR4J","deliveryContext":{"isRedelivery":false},"timestamp":1651070577909,"source":{"type":"user","userId":"Uc76e500409b7158acf99f6a82e3841aa"}, "replyToken":"e03a8e545bdc4af19b26c009b7924ee7","mode":"active"}]};
+  var msg = JSON.parse(e.postData.contents);
   // 從接收到的訊息中取出 replyToken 和發送的訊息文字，詳情請看 LINE 官方 API 說明文件
-  
+
   const replyToken = msg.events[0].replyToken; // 回覆的 token
   const userMessage = msg.events[0].message.text; // 抓取使用者傳的訊息內容
   const user_id = msg.events[0].source.userId; // 抓取使用者的 ID，等等用來查詢使用者的名稱
@@ -69,7 +75,7 @@ function doPost(e) {
 
 
   var usermsgArray = userMessage.split(" ");      //用空格拆分使用者輸入內容
-  if(usermsgArray[0].length==1){                  //避免手殘User
+  if(usermsgArray[0].length==1){                  //避免User打錯
       usermsgArray.splice(0, 1);                  //在+後面多了空格 刪除
   }
   if (userMessage == "開始") {
@@ -77,13 +83,18 @@ function doPost(e) {
     reserve_list2.clear();  
   }
   else if (userMessage.substring(0, 1) == "+") {
-    usermsgArray[0] = usermsgArray[0].replace("+", "");                            //本來是+珍珠奶茶 = 珍珠奶茶
-    reserve_list.getRange(current_list_row + 1, 1).setValue(reserve_name);         //第1格先輸入使用者名字
-    for (var i = 0; i < usermsgArray.length; i++) {
-      reserve_list.getRange(current_list_row + 1, i + 2).setValue(usermsgArray[i]);//從第2格將使用者輸入的東西寫入Excel
+    var multi = userMessage.split("\n+");        									 //一次打多筆拆換行符號
+    for(a=0;a<multi.length;a++){
+      var multispace = multi[a].split(" ");
+      multispace[0] = multispace[0].replace("+", "");                                //本來是+珍珠奶茶 = 珍珠奶茶
+      reserve_list.getRange(current_list_row + 1, 1).setValue(reserve_name);         //第1格先輸入使用者名字
+      for (var i = 0; i < multispace.length; i++) {
+        reserve_list.getRange(current_list_row + 1, i + 2).setValue(multispace[i]);//從第2格將使用者輸入的東西寫入Excel
+      }
+      current_list_row++;
+      // reply_messgae 為要回傳給 LINE 伺服器的內容，JSON 格式，詳情可看 LINE 官方 API 說明
+      ready_namelist += "已記錄"+" "+reserve_name+" "+multispace[0]+"\n";
     }
-    // reply_messgae 為要回傳給 LINE 伺服器的內容，JSON 格式，詳情可看 LINE 官方 API 說明
-    //ready_namelist = "已記錄";
   }
   else if (userMessage.substring(0, 1) == "-") {
     usermsgArray[0] = usermsgArray[0].replace("-", "")
@@ -113,7 +124,7 @@ function doPost(e) {
   }
 
   else if (userMessage == "[結單]") {
-    reserve_list2.clear();  //先清除舊截單資料
+    reserve_list2.clear();  //先清除舊結單資料
     var ready_namelist = "[ 總結 ]\n";
     for (var x = 1; x <= current_list_row; x++) {
       current_list_column = reserve_list.getLastColumn();   //重新抓取每一行的column
@@ -145,6 +156,23 @@ function doPost(e) {
       }
       StringContact = ""; //清空
 
+    }
+  }
+  else if(userMessage == "[查詢]"){
+    var ready_namelist = "[ 查詢"+reserve_name+"紀錄 ]\n";
+    var num = 0;
+    for (var x = 1; x <= current_list_row; x++) {
+      name = reserve_list.getRange(x, 1).getValue();
+      if(name==reserve_name){
+        for (var j = 2; j <= current_list_column; j++) {     
+          ready_namelist = ready_namelist + reserve_list.getRange(x, j).getValue() + " ";
+        }
+        ready_namelist = ready_namelist+ " \n";
+        num++;
+      }
+    }
+    if(num==0){
+      ready_namelist = "無紀錄資料";
     }
   }
   else {
